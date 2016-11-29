@@ -1,15 +1,13 @@
 var Nightmare = require('nightmare');
+var nodemailer = require('nodemailer');
 
-var login = 'bpmteste@teste.com';
-var password = '123456789';
+var login = 'login@servidor.com';
+var password = 'senha';
 
 var nightmare = Nightmare({ show: false });
+var transporter = nodemailer.createTransport('smtps://login%40gmail.com:senha@smtp.gmail.com');
 
 startNightmare();
-
-setInterval(function(){
-  startNightmare();
-}, 86400000)
 
 function startNightmare(){
   nightmare
@@ -43,12 +41,24 @@ function getBook(night){
   .click('.twelve-days-claim')
   .wait('#product-account-list .product-top-line .title')
   .evaluate(function () {
-    console.log('teste');
     return document.querySelector('.title').innerHTML.replace(/\[eBook\]/g, '').trim();
   })
   .end()
   .then(function (result) {
-    console.log(result)
+    //result é o título do email
+    var email = {
+      from: '"Nome" <email@servidor.com>',
+      to: '"Nome" <email@servidor.com>',
+      subject: 'Titulo',
+      text: 'Corpo da Mensagem'
+    }
+
+    transporter.sendMail(email, function(error, info){
+      if(error){
+          return console.log(error);
+      }
+      console.log('Message sent: ' + info.response);
+    });
   })
   .catch(function (error) {
     console.error('Search failed:', error);
